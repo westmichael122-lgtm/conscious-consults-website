@@ -41,15 +41,37 @@ export default function Home() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    try {
+      const response = await fetch('/api/route', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
 
-    toast.success('Your message has been sent. We will respond in due time.', {
-      duration: 4000,
-      position: 'bottom-center'
-    })
+      const data = await response.json()
 
-    setFormData({ name: '', email: '', message: '' })
+      if (data.success) {
+        toast.success('Your message has been sent. We will respond in due time.', {
+          duration: 4000,
+          position: 'bottom-center'
+        })
+        setFormData({ name: '', email: '', message: '' })
+      } else {
+        toast.error(data.error || 'Failed to send message. Please try again.', {
+          duration: 4000,
+          position: 'bottom-center'
+        })
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      toast.error('Failed to send message. Please try again.', {
+        duration: 4000,
+        position: 'bottom-center'
+      })
+    }
+
     setIsSubmitting(false)
   }
 
